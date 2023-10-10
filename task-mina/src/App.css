@@ -20,6 +20,7 @@
   color: #fff;
   cursor: pointer;
   border-radius: 10px;
+  border: none;
 }
 
 .custom-button:hover {
@@ -32,4 +33,51 @@
 .custom-button.second{
   margin-left: 20px;
   border: none;
+}
+#pie-chart{
+  width: 70% ;
+  margin-top: 40px;
+  margin: 40px auto 0;
+
+}
+.colors{
+  width: 20px;
+  height: 10px;
+}
+.first-colors{
+  background-color: purple;
+}
+.second-colors{
+  background-color: green;
+  margin-left: 20px;
+}
+.third-colors{
+  background-color: blue;
+  margin-left: 20px;
+}
+.box-status{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.box-status p{
+  margin-bottom: 0;
+  margin-top: 5px;
+}
+.box-status span{
+  font-size: 13px;
+}
+#chart {
+  background-color: #F5F2EB;
+  border: 1px solid #CCC;
+  width: 100%;
+}
+.recharts-responsive-container{
+  width: 450px !important;
+  height: 500px !important;
+  margin-top: 30px;
+}
+.recharts-default-legend{
+  display: none;
 }
