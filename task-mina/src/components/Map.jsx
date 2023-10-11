@@ -88,7 +88,10 @@ const MapComponent = (element) => {
     }, [element]);
 
     return (
-        <div id="map" style={{ width: '48vw', height: '95%' }}></div>
+        <div className='my-map-container' style={{ width: '49vw', height: '97%',position:"relative" }}>
+            <div id="map" style={{ width: '100%', height: '100%' }}></div>
+
+        </div>
     );
 };
 

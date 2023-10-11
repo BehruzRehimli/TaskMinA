@@ -23,14 +23,14 @@ export default class Example extends PureComponent {
 
   render() {
 
-    var status0=this.props.barData.filter(x=>x[3]===0)
-    data[0].pv=status0.reduce((total, array)=>total+array[1],0)
+    var status0=this.props.barData.filter(x=>x.status===0)
+    data[0].pv=status0.reduce((total, array)=>total+ +array.len,0)
 
-    var status1=this.props.barData.filter(x=>x[3]===1)
-    data[1].pv=status1.reduce((total, array)=>total+array[1],0)
+    var status1=this.props.barData.filter(x=>x.status===1)
+    data[1].pv=status1.reduce((total, array)=>total+ +array.len,0)
 
-    var status2=this.props.barData.filter(x=>x[3]===2)
-    data[2].pv=status2.reduce((total, array)=>total+array[1],0)
+    var status2=this.props.barData.filter(x=>x.status===2)
+    data[2].pv=status2.reduce((total, array)=>total+ +array.len,0)
 
 
     return (

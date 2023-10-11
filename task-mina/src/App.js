@@ -6,6 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { Formik } from 'formik';
 import drawChart from './components/Chart';
+import {tabulatorInstanse} from "./components/LoadFile"
 
 
 
@@ -25,7 +26,8 @@ function App() {
     delete: false,
     analiz1: false,
     analiz2: false,
-    map:false
+    map:false,
+    refreshAnaliz2Data:false
   });
 
   const [element, setElement] = useState({
@@ -55,9 +57,9 @@ function App() {
 
     const element2 = "#pie-chart"
     if (show.analiz1 == true) {
-      var status0 = tabulator.filter(x => x[3] == 0).length
-      var status1 = tabulator.filter(x => x[3] == 1).length
-      var status2 = tabulator.filter(x => x[3] == 2).length
+      var status0 = tabulatorInstanse.filter(x => x.status == 0).length
+      var status1 = tabulatorInstanse.filter(x => x.status == 1).length
+      var status2 = tabulatorInstanse.filter(x => x.status == 2).length
 
       var sumCount = status0 + status1 + status2
 
@@ -80,6 +82,12 @@ function App() {
     }
   }, [show.analiz1])
 
+  useEffect(()=>{
+    if (show.analiz2) {
+      setShow(prev => { return { ...prev, refreshAnaliz2Data: true } })
+    }
+  },[show.analiz2])
+
   const handleClose = () => setShow(prev => { return { ...prev, create: false } });
   const handleShow = () => {
     if (tabulator) {
@@ -96,6 +104,7 @@ function App() {
   const handleDeleteShow = () => setShow(prev => { return { ...prev, delete: true } })
   const handleAnaliz1Close = () => setShow(prev => { return { ...prev, analiz1: false } });
   const handleAnaliz1Show = () => {
+    console.log(tabulatorInstanse);
     if (tabulator) {
       setShow(prev => { return { ...prev, analiz1: true } })
     }
@@ -106,6 +115,7 @@ function App() {
   const handleAnaliz2Close = () => setShow(prev => { return { ...prev, analiz2: false } });
   const handleAnaliz2Show = () => {
     if (tabulator) {
+      console.log(tabulatorInstanse);
       setShow(prev => { return { ...prev, analiz2: true } })
     }
     else {
@@ -157,6 +167,24 @@ function App() {
     }
   },[element.mapId])
 
+  const [transformedData,setTransformedData]=useState();
+
+  useEffect(()=>{
+    if(tabulator){
+     var transformed = tabulator.map((item, index) => {
+
+        if (index === 0) return null;
+
+        return {
+            id: item[0],
+            len: item[1],
+            wkt: item[2],
+            status: item[3],
+        };
+    }).filter(item => item !== null).sort((a, b) => b.id - a.id);
+    }
+    setTransformedData(transformed)
+  },[tabulator])
 
 
 
@@ -178,7 +206,7 @@ function App() {
       </div>
       <div className='d-flex' style={{minHeight:"695px"}}>
         <div>
-          {tabulator && <LoadFile data={tabulator} onMapClick={handleMapClick} onEditClick={handleEditClick} onDeleteClick={handleDeleteClick} key={tabulator.map(item => item).join('-')} />}
+          {transformedData && <LoadFile data={transformedData} onMapClick={handleMapClick} onEditClick={handleEditClick} onDeleteClick={handleDeleteClick} key={transformedData && transformedData.length > 0 ? transformedData[0].id : 'defaultKey'} />}
         </div>
         <div>
           {show.map && <MapComponent element={mapElement} />}
@@ -211,7 +239,7 @@ function App() {
               if (!values.status && values.status != 0) {
                 errors.status = "Required"
               }
-              else if (values.status > 2 && values.status < 0) {
+              else if (values.status > 2 || values.status < 0) {
                 errors.status = "Status must be 0,1 or 2"
               }
               return errors;
@@ -220,8 +248,9 @@ function App() {
               if (tabulator) {
                 var maxId = findMaxId(tabulator)
                 var newData = [++maxId, values.len, '', values.status]
-                tabulator.push(newData);
-                console.log(tabulator);
+                var prevData=[...tabulator]
+                prevData.push(newData);
+                setTabulator(prevData);
                 setShow(prev => { return { ...prev, create: false } })
               }
               else {
@@ -298,14 +327,16 @@ function App() {
               if (!values.status && values.status != 0) {
                 errors.status = "Required"
               }
-              else if (values.status > 2 && values.status < 0) {
+              else if (values.status > 2 || values.status < 0) {
                 errors.status = "Status must be 0,1 or 2"
               }
               return errors;
             }}
             onSubmit={(values, { setSubmitting }) => {
-              tabulator.find(x => x[0] === element.editId)[1] = values.len
-              tabulator.find(x => x[0] === element.editId)[3] = values.status
+              var prevData=[...tabulator]
+              prevData.find(x => x[0] === element.editId)[1] = values.len
+              prevData.find(x => x[0] === element.editId)[3] = values.status
+              setTabulator(prevData)
               handleEditClose()
               setSubmitting(false);
 
@@ -414,7 +445,7 @@ function App() {
         </Modal.Header>
         <Modal.Body>
           <h5 className='text-center'>Analiz 2</h5>
-          {show.analiz2 && <BarChartComp barData={tabulator} />}
+          {show.refreshAnaliz2Data && tabulatorInstanse && <BarChartComp barData={tabulatorInstanse || tabulator} key={tabulatorInstanse && tabulatorInstanse.length}  />}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleAnaliz2Close}>
